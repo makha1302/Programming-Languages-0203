@@ -1,0 +1,2 @@
+read A;
+read 1score;

@@ -1,0 +1,9 @@
+// case-sensitive keywords: If IF Print READ are identifiers
+If IF Print READ read
+x = 10; y = -10;
+x == y; x <= y; x >= y; x < y; x > y;
+x++; y--;
+a1 = (x + y) * 2 / 3;
+print "Score is 100";
+while x < 100 do x++; endwhile
+if x then print newline; else read y; endif
