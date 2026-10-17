@@ -68,8 +68,15 @@ class MiniLexer(Lexer):
     # ---------- string: อยู่บรรทัดเดียว ไม่รองรับ escape ----------
     STRING = r'"[^"\n]*"'
 
-    # ---------- integer: ไม่ติดลบ และห้ามมีตัวอักษร/ตัวเลขตามหลังทันที (เช่น 1score) ----------
-    INTEGER = r'[0-9]+(?![a-zA-Z0-9_])'
+    # ---------- ตัวเลขที่มีตัวอักษรตามหลัง (เช่น 1score) -> identifier ผิดรูปแบบ ----------
+    @_(r'[0-9]+[a-zA-Z_][a-zA-Z0-9_]*')
+    def ignore_bad_identifier(self, t):
+        raise LexicalError(
+            f"Lexical error: unexpected character {t.value[0]} "
+            f"(invalid identifier \"{t.value}\" cannot start with a digit, line {self.lineno})")
+
+    # ---------- integer: เลขจำนวนเต็มไม่ติดลบ ----------
+    INTEGER = r'[0-9]+'
 
     # ---------- identifier และ keywords (keyword เป็นตัวพิมพ์เล็กเท่านั้น) ----------
     ID = r'[a-zA-Z][a-zA-Z0-9]*'
@@ -128,8 +135,14 @@ def main():
     if len(sys.argv) != 2:
         print('usage: python lexer.py <input.txt>')
         sys.exit(2)
-    with open(sys.argv[1], encoding='utf-8') as f:
-        analyze(f.read())
+    sys.stdout.reconfigure(encoding='utf-8')   # ให้แสดง string ภาษาไทยบน Windows console ได้
+    try:
+        with open(sys.argv[1], encoding='utf-8') as f:
+            source = f.read()
+    except OSError as err:
+        print(f'cannot open file: {err.filename}')
+        sys.exit(2)
+    analyze(source)
 
 
 if __name__ == '__main__':
